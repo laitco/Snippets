@@ -18,7 +18,7 @@ providers:
 certificatesResolvers:
   cloudflare:
     acme:
-      email: max.muser@DOMAIN.de
+      email: max.muser@DOMAIN.de #Mit eigener E-Mail-Adresse zu ersetzen.
       storage: acme.json
       dnsChallenge:
         provider: cloudflare
@@ -26,8 +26,8 @@ certificatesResolvers:
           - "1.1.1.1:53"
           - "1.0.0.1:53"
 pilot:
-    token: "APITOKEN_PILOT"
-    dashboard: false
+    token: "APITOKEN_PILOT" #Mit Traefik Pilot Token zu ersetzen
+    dashboard: false #Nach ersetzen auf true setzen.
 log:
   filePath: "/treafik_logs/traefik.log"
   level: ERROR
