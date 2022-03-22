@@ -36,7 +36,7 @@ http:
         - default-headers
         - https-redirect
         - rate-limit
-        - keycloak
+        - keycloak #Aktivierung ForwardAuth
       tls:
         options: tls-options
       service: APP
