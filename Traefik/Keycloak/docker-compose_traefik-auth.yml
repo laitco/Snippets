@@ -5,18 +5,18 @@ version: '3'
     image: mesosphere/traefik-forward-auth
     environment:
       - CLIENT_ID=traefik-auth
-      - CLIENT_SECRET=CLIENTSECRET_KEYCLOAK_CLIENT
-      - PROVIDER_URI=https://login.DOMAIN.de/auth/realms/master
-      - SECRET=GENERATEDSECRET
+      - CLIENT_SECRET=CLIENTSECRET_KEYCLOAK_CLIENT #Mit Clientsecret aus Keycloak zu ersetzen
+      - PROVIDER_URI=https://login.DOMAIN.de/auth/realms/master #DOMAIN mit der eigenen zu ersetzen
+      - SECRET=GENERATEDSECRET #Ein beliebiges Secret
       - LOG_LEVEL=debug
       - URL_PATH=/_oauth
       - LIFETIME=43200
       - INSECURE_COOKIE=false
-      - COOKIE_DOMAIN=DOMAIN.de
-      - COOKIE_NAME=_auth_DOMAIN
-      - CSRF_COOKIE_NAME=_auth_DOMAIN_csrf
-      - CLAIMS_SESSION_NAME=_auth_DOMAIN_claims
-      - USER_COOKIE_NAME=_auth_DOMAIN_name
+      - COOKIE_DOMAIN=DOMAIN.de #DOMAIN mit der eigenen zu ersetzen
+      - COOKIE_NAME=_auth_DOMAIN #DOMAIN mit der eigenen zu ersetzen
+      - CSRF_COOKIE_NAME=_auth_DOMAIN_csrf #DOMAIN mit der eigenen zu ersetzen
+      - CLAIMS_SESSION_NAME=_auth_DOMAIN_claims #DOMAIN mit der eigenen zu ersetzen
+      - USER_COOKIE_NAME=_auth_DOMAIN_name #DOMAIN mit der eigenen zu ersetzen
     networks:
       - proxy
     ports:
