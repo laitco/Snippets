@@ -1,6 +1,6 @@
 #DOMAIN ist durch die eigene zu ersetzen.
 #APP ist durch die gewünschte Subdomain zu ersetzten und im Service abzubilden.
-#IP-Adresse ist durch ddas gewünschte Ziel zu ersetzen.
+#IP-Adresse ist durch das gewünschte Ziel zu ersetzen.
 
 http:
  #region routers 
