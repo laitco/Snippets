@@ -1,0 +1,32 @@
+version: '3'
+
+  traefik-auth:
+    container_name: traefik-auth
+    image: mesosphere/traefik-forward-auth
+    environment:
+      - CLIENT_ID=traefik-auth
+      - CLIENT_SECRET=CLIENTSECRET_KEYCLOAK_CLIENT
+      - PROVIDER_URI=https://login.DOMAIN.de/auth/realms/master
+      - SECRET=GENERATEDSECRET
+      - LOG_LEVEL=debug
+      - URL_PATH=/_oauth
+      - LIFETIME=43200
+      - INSECURE_COOKIE=false
+      - COOKIE_DOMAIN=DOMAIN.de
+      - COOKIE_NAME=_auth_DOMAIN
+      - CSRF_COOKIE_NAME=_auth_DOMAIN_csrf
+      - CLAIMS_SESSION_NAME=_auth_DOMAIN_claims
+      - USER_COOKIE_NAME=_auth_DOMAIN_name
+    networks:
+      - proxy
+    ports:
+      - 4181:4181
+    labels:
+      - "traefik.http.middlewares.traefik-forward-auth.forwardauth.address=http://127.0.0.1:4181"
+      - "traefik.http.middlewares.traefik-forward-auth.forwardauth.authResponseHeaders=X-Forwarded-User, X-Forwarded-Proto, X-Forwarded-Uri, X-Forwarded-For, X-Forwarded-Method, X-Secret"
+      - "traefik.http.services.traefik-forward-auth.loadbalancer.server.port=4181"
+      - "traefik.enable=true"
+    restart: always
+networks:
+  proxy:
+    external: true
