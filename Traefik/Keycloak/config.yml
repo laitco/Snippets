@@ -1,0 +1,58 @@
+http:
+ #region routers 
+  routers:
+    login:
+      entryPoints:
+        - "https"
+      rule: "Host(`login.DOMAIN.de`)"
+      middlewares:
+        - default-headers
+        - https-redirect
+        - rate-limit
+        - error-pages
+      tls:
+        options: tls-options
+      service: login 
+    login_redirect:
+      entryPoints:
+        - "https"
+      rule: "Host(`login.DOMAIN.de`) && Path(`/`, `/auth`)"
+      middlewares:
+        - default-headers
+        - https-redirect
+        - redirect-login
+        - rate-limit
+        - error-pages
+      tls:
+        options: tls-options
+      service: login
+    APP:
+      entryPoints:
+        - "https"
+      rule: "Host(`APP.DOMAIN.de`)"
+      middlewares:
+        - default-headers
+        - https-redirect
+        - rate-limit
+		- keycloak
+      tls:
+        options: tls-options
+      service: APP
+  services:
+    login:
+      loadBalancer:
+        servers:
+          - url: "https://IP-ADRESSE_Keycloak:8643"
+        passHostHeader: true
+  middlewares:
+    keycloak:
+      forwardAuth:
+        address: "http://IP-ADRESSE_ForwardAUTH:4181"
+        trustForwardHeader: true
+        authResponseHeaders:
+          - "X-Forwarded-User"
+          - "X-Forwarded-Proto"
+          - "X-Forwarded-Uri"
+          - "X-Forwarded-For"
+          - "X-Forwarded-Method"
+          - "X-Secret"
