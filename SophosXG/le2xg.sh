@@ -1,5 +1,5 @@
 #!/bin/bash
-#Copy from https://github.com/mmccarn/sophos
+#Copied from https://github.com/mmccarn/sophos and done some enchancements for Wildcard Certs
 # router address and port as seen from the system running Letsencrypt
 ROUTER=IP-ADRESS:4444
 
