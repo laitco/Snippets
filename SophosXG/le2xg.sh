@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#Copy from https://github.com/mmccarn/sophos
 # router address and port as seen from the system running Letsencrypt
 ROUTER=IP-ADRESS:4444
 
