@@ -31,7 +31,7 @@ CERTDATE=$(find /root/.acme.sh/${LEDOMAIN}_ecc/${LEDOMAIN}.key -printf "%CY%Cm%C
 # XG Operation
 #     add: this must be used once to initiate the certificate on the XG
 #  update: this is used for updating the cert once it has been created
-OPERATION=${1:-update}
+OPERATION=${1:-add}
 
 # Overview -
 # 1. copy & rename letsencrypt 'privkey.pem' to 'privkey.key'
