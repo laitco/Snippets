@@ -65,7 +65,7 @@ http:
         - default-headers
         - https-redirect
         - rate-limit
-		- default-whitelist # #IP Whitelist
+	- default-whitelist # #IP Whitelist
       tls:
         options: tls-options
       service: APP
