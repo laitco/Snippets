@@ -9,7 +9,6 @@ http:
         - default-headers
         - https-redirect
         - rate-limit
-        - error-pages
       tls:
         options: tls-options
       service: login 
@@ -22,7 +21,6 @@ http:
         - https-redirect
         - redirect-login
         - rate-limit
-        - error-pages
       tls:
         options: tls-options
       service: login
@@ -45,6 +43,15 @@ http:
           - url: "https://IP-ADRESSE_Keycloak:8643"
         passHostHeader: true
   middlewares:
+    redirect-login:
+      redirectRegex:
+        regex: ".*"
+        replacement: "https://login.DOMAIN.de/auth/realms/master/account/#/personal-info"
+        permanent: true
+    https-redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true    
     keycloak:
       forwardAuth:
         address: "http://IP-ADRESSE_ForwardAUTH:4181"
@@ -56,3 +63,37 @@ http:
           - "X-Forwarded-For"
           - "X-Forwarded-Method"
           - "X-Secret"
+    rate-limit:
+      ratelimit:
+        average: 200
+        burst: 100
+    default-headers:
+      headers:
+        frameDeny: true
+        sslRedirect: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 15552000
+        customFrameOptionsValue: SAMEORIGIN
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+tls:
+  options:
+    tls-options:
+      minVersion: VersionTLS12
+      sniStrict: true
+      cipherSuites:
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+        - TLS_AES_128_GCM_SHA256
+        - TLS_AES_256_GCM_SHA384
+        - TLS_CHACHA20_POLY1305_SHA256
+      curvePreferences:
+        - CurveP521
+        - CurveP384
