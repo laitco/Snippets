@@ -1,0 +1,41 @@
+Version: '3'
+
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - CF_API_EMAIL=max.muser@DOMAIN.de
+      - CF_DNS_API_TOKEN=APITOKENCLOUDFLARE
+      - TZ=Europe/Berlin
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /docker/traefik/traefik.yml:/traefik.yml:ro
+      - /docker/traefik/acme.json:/acme.json
+      - /docker/traefik/config.yml:/config.yml:ro
+      - /docker/traefik/logs:/treafik_logs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.entrypoints=http"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.DOMAIN.de`)"
+      - "traefik.http.middlewares.traefik-auth.basicauth.users=USERNAME:PASSWORD aus vorherigem Schritt"
+      - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.sslheader.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.routers.traefik.middlewares=traefik-https-redirect"
+      - "traefik.http.routers.traefik-secure.entrypoints=https"
+      - "traefik.http.routers.traefik-secure.rule=Host(`traefik.DOMAIN.de`)"
+      - "traefik.http.routers.traefik-secure.middlewares= default-headers@file, default-whitelist@file, rate-limit@file"
+      - "traefik.http.routers.traefik-secure.tls=true"
+      - "traefik.http.routers.traefik-secure.tls.options=tls-options@file"
+      - "traefik.http.routers.traefik-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].main=DOMAIN.de"
+      - "traefik.http.routers.traefik-secure.tls.domains[0].sans=*.DOMAIN.de"
+      - "traefik.http.routers.traefik-secure.service=api@internal"

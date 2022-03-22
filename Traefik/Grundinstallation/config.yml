@@ -1,0 +1,188 @@
+http:
+ #region routers 
+  routers:
+    base_ip_http:
+      entryPoints:
+        - "http"
+      rule: "HostRegexp(`{host:^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$}`)"
+      middlewares:
+        - redirect-website
+        - default-headers
+        - rate-limit
+      service: www
+    base_ip_https:
+      entryPoints:
+        - "https"
+      rule: "HostRegexp(`{host:^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$}`)"
+      middlewares:
+        - redirect-website
+        - default-headers
+        - rate-limit
+      tls:
+        options: tls-options
+      service: www
+
+    www:
+      entryPoints:
+        - "https"
+      rule: "Host(`www.DOMAIN.de`)"
+      middlewares:
+        - default-headers
+        - https-redirect
+        - rate-limit
+      tls:
+        options: tls-options
+      service: www
+    www-root:
+      entryPoints:
+        - "https"
+      rule: "Host(`DOMAIN.de`)"
+      middlewares:
+        - default-headers
+        - https-redirect
+        - redirect-website
+        - rate-limit
+      tls:
+        options: tls-options
+      service: www
+
+    APP:
+      entryPoints:
+        - "https"
+      rule: "Host(`APP.DOMAIN.de`)"
+      middlewares:
+        - default-headers
+        - https-redirect
+        - rate-limit
+      tls:
+        options: tls-options
+      service: wlbag
+    wlbag_api:
+      entryPoints:
+        - "https"
+      rule: "Host(`APP.DOMAIN.de`)&& PathPrefix(`/api`, `/oauth`)"
+      middlewares:
+        - default-headers
+        - https-redirect
+        - rate-limit
+		- default-whitelist # #IP Whitelist
+      tls:
+        options: tls-options
+      service: wlbag
+
+    pihole:
+      entryPoints:
+        - "https"
+      rule: "Host(`pihole.DOMAIN.de`)"
+      middlewares:
+        - default-headers
+        - default-whitelist
+        - addprefix-pihole
+        - https-redirect
+        - rate-limit
+      tls:
+        options: tls-options
+      service: pihole
+
+
+#endregion
+#region services
+  services:
+    www:
+      loadBalancer:
+        servers:
+          - url: "https://IP-WEBSERVER"
+        passHostHeader: true
+    APP:
+      loadBalancer:
+        servers:
+          - url: "https://IP-WEBSERVER:PORT"
+        passHostHeader: true
+    pihole:
+      loadBalancer:
+        servers:
+          - url: "http://IP-PiHole"
+
+#endregion
+  middlewares:
+    addprefix-pihole:
+      addPrefix:
+        prefix: "/admin"
+    redirect-website:
+      redirectRegex:
+        regex: ".*"
+        replacement: "https://www.DOMAIN.de"
+        permanent: true
+    https-redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true
+    rate-limit:
+      ratelimit:
+        average: 200
+        burst: 100
+  
+    default-headers:
+      headers:
+        frameDeny: true
+        sslRedirect: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 15552000
+        customFrameOptionsValue: SAMEORIGIN
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+
+    default-headers-NoSniff-false:
+      headers:
+        frameDeny: true
+        sslRedirect: true
+        browserXssFilter: true
+        contentTypeNosniff: false
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 15552000
+        customFrameOptionsValue: SAMEORIGIN
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+
+    default-whitelist:
+      ipWhiteList:
+        sourceRange:
+        - "10.0.0.0/8"
+        - "192.168.0.0/16"
+        - "172.16.0.0/12"
+		
+    gzip:
+      compress: {}
+
+    secured:
+      chain:
+        middlewares:
+        - default-whitelist
+        - default-headers
+        - monitoring-whitelist
+        - gzip
+        - error-pages
+
+tls:
+  options:
+    tls-options:
+      minVersion: VersionTLS12
+      sniStrict: true
+      cipherSuites:
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+        - TLS_AES_128_GCM_SHA256
+        - TLS_AES_256_GCM_SHA384
+        - TLS_CHACHA20_POLY1305_SHA256
+      curvePreferences:
+        - CurveP521
+        - CurveP384
