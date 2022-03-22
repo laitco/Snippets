@@ -1,0 +1,15 @@
+Version: '3'
+
+services:
+  traefik:
+    image: vaultwarden/server:latest
+    container_name: bitwarden
+    restart: always
+    ports:
+      - 5010:80
+      - 3012:3012
+    environment:
+      - ADMIN_TOKEN=TOKEN #Mit eigenem Secret zu ersetzten
+      - TZ=Europe/Berlin
+    volumes:
+      - ./data:/data:rw
