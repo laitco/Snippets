@@ -34,7 +34,7 @@ http:
         - default-headers
         - https-redirect
         - rate-limit
-		- keycloak
+        - keycloak
       tls:
         options: tls-options
       service: APP
