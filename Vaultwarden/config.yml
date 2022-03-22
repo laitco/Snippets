@@ -1,0 +1,75 @@
+#DOMAIN ist durch die eigene zu ersetzen.
+#IP-Adresse ist durch das gewünschte Ziel zu ersetzen.
+
+http:
+ #region routers 
+  routers:
+
+    passwordmanager:
+      entryPoints:
+        - "https"
+      rule: "Host(`passwordmanager.DOMAIN.de`)"
+      middlewares:
+        - default-headers
+        - https-redirect
+        - rate-limit
+        - error-pages
+      tls:
+        options: tls-options
+      service: passwordmanager
+
+
+#endregion
+#region services
+  services:
+    passwordmanager:
+      loadBalancer:
+        servers:
+          - url: "https://IP-DOCKERHOST:5010"
+        passHostHeader: true
+
+#endregion
+  middlewares:
+    https-redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true
+    rate-limit:
+      ratelimit:
+        average: 200
+        burst: 100
+  
+    default-headers:
+      headers:
+        frameDeny: true
+        sslRedirect: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 15552000
+        customFrameOptionsValue: SAMEORIGIN
+        customRequestHeaders:
+          X-Forwarded-Proto: https
+
+    gzip:
+      compress: {}
+
+tls:
+  options:
+    tls-options:
+      minVersion: VersionTLS12
+      sniStrict: true
+      cipherSuites:
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+        - TLS_AES_128_GCM_SHA256
+        - TLS_AES_256_GCM_SHA384
+        - TLS_CHACHA20_POLY1305_SHA256
+      curvePreferences:
+        - CurveP521
+        - CurveP384
