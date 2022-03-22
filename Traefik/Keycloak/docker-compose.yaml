@@ -1,0 +1,33 @@
+version: "2"
+services:
+  keycloak-postgresql:
+    image: postgres:13
+    environment:
+      - POSTGRES_PASSWORD=DBPASSWORD
+      - POSTGRES_USER=bn_keycloak
+      - POSTGRES_DB=bitnami_keycloak
+    volumes:
+      - "/volume2/docker_ssd/keycloak/database:/var/lib/postgresql/data"
+    ports:
+      - "8641:5432"
+  keycloak:
+    image: bitnami/keycloak:latest
+    ports:
+      - "8642:8080"
+      - "8643:8443"
+    environment:
+      - KEYCLOAK_CREATE_ADMIN_USER=true
+      - KEYCLOAK_ADMIN_USER=ADMINUSER
+      - KEYCLOAK_ADMIN_PASSWORD=ADMINPASSWORD
+      - KEYCLOAK_CACHE_OWNERS_COUNT=3
+      - KEYCLOAK_AUTH_CACHE_OWNERS_COUNT=3
+      - KEYCLOAK_ENABLE_STATISTICS=true
+      - KEYCLOAK_DATABASE_HOST=127.0.0.1
+      - KEYCLOAK_DATABASE_PORT=8641
+      - KEYCLOAK_DATABASE_NAME=bitnami_keycloak
+      - KEYCLOAK_DATABASE_USER=bn_keycloak
+      - KEYCLOAK_DATABASE_PASSWORD=DBPASSWORD
+      - KEYCLOAK_PROXY_ADDRESS_FORWARDING=true
+      - KEYCLOAK_FRONTEND_URL=https://login.DOMAIN.de
+    depends_on:
+      - keycloak-postgresql
