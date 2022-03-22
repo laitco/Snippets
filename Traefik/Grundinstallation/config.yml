@@ -56,7 +56,7 @@ http:
         - rate-limit
       tls:
         options: tls-options
-      service: wlbag
+      service: APP
     wlbag_api:
       entryPoints:
         - "https"
@@ -68,7 +68,7 @@ http:
 		- default-whitelist # #IP Whitelist
       tls:
         options: tls-options
-      service: wlbag
+      service: APP
 
     pihole:
       entryPoints:
