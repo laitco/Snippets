@@ -1,3 +1,6 @@
+#DOMAIN ist durch die eigene zu ersetzen.
+#APP ist durch die gewünschte Subdomain zu ersetzten und im Service abzubilden.
+
 http:
  #region routers 
   routers:
