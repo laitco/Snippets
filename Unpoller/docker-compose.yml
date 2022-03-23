@@ -1,0 +1,8 @@
+version: "3"
+services:
+  unpoller:
+    container_name: unpoller
+    restart: unless-stopped
+    image: golift/unifi-poller:latest
+    volumes:
+      - ./config/unpoller.conf:/etc/unifi-poller/up.conf
