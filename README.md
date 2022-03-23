@@ -1,3 +1,3 @@
 # Snippets
 
-Any Blog related files.
+Any [Blog](https://www.laitco.de) related files.
