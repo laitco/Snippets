@@ -1,33 +1,33 @@
-version: "2"
+version: '3'
+
 services:
-  keycloak-postgresql:
-    image: postgres:13
-    environment:
-      - POSTGRES_PASSWORD=DBPASSWORD #Bitte festlegen
-      - POSTGRES_USER=bn_keycloak
-      - POSTGRES_DB=bitnami_keycloak
-    volumes:
-      - "/volume2/docker_ssd/keycloak/database:/var/lib/postgresql/data"
-    ports:
-      - "8641:5432"
+  postgres:
+      image: postgres:13
+      volumes:
+        - ./database:/var/lib/postgresql/data
+      environment:
+        POSTGRES_DB: keycloak
+        POSTGRES_USER: keycloak
+        POSTGRES_PASSWORD: PASSWORD
+      ports:
+        - 5432:5432
   keycloak:
-    image: bitnami/keycloak:latest
-    ports:
-      - "8642:8080"
-      - "8643:8443"
-    environment:
-      - KEYCLOAK_CREATE_ADMIN_USER=true
-      - KEYCLOAK_ADMIN_USER=Admin
-      - KEYCLOAK_ADMIN_PASSWORD=ADMINPASSWORD #Passwort für den Benutzer "Admin" bitte festlegen.
-      - KEYCLOAK_CACHE_OWNERS_COUNT=3
-      - KEYCLOAK_AUTH_CACHE_OWNERS_COUNT=3
-      - KEYCLOAK_ENABLE_STATISTICS=true
-      - KEYCLOAK_DATABASE_HOST=127.0.0.1
-      - KEYCLOAK_DATABASE_PORT=8641
-      - KEYCLOAK_DATABASE_NAME=bitnami_keycloak
-      - KEYCLOAK_DATABASE_USER=bn_keycloak
-      - KEYCLOAK_DATABASE_PASSWORD=DBPASSWORD #Durch obgrig festgelegtes zu ersetzen
-      - KEYCLOAK_PROXY_ADDRESS_FORWARDING=true
-      - KEYCLOAK_FRONTEND_URL=https://login.DOMAIN.de #DOMAIN durch eigene zu ersetzen
-    depends_on:
-      - keycloak-postgresql
+      image: quay.io/keycloak/keycloak:legacy
+      environment:
+        DB_VENDOR: POSTGRES
+        DB_ADDR: 127.0.0.1:8641
+        DB_DATABASE: keycloak
+        DB_USER: keycloak
+        DB_SCHEMA: public
+        DB_PASSWORD: PASSWORD
+        KEYCLOAK_USER: admin
+        KEYCLOAK_PASSWORD: PASSWORD
+        PROXY_ADDRESS_FORWARDING: "true"
+        KEYCLOAK_FRONTEND_URL: "https://login.DOMAIN.de/auth"
+        # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
+        #JDBC_PARAMS: "ssl=true"
+      ports:
+        - 8080:8080
+        - 8443:8443
+      depends_on:
+        - postgres
