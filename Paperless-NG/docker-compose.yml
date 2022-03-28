@@ -1,0 +1,91 @@
+version: "3"
+services:
+ Paperless_Broker:
+    command:
+      - redis-server
+    container_name: Paperless_Broker
+    entrypoint:
+      - docker-entrypoint.sh
+    environment:
+      - GOSU_VERSION=1.14
+      - REDIS_VERSION=6.0.15
+      - REDIS_DOWNLOAD_URL=http://download.redis.io/releases/redis-6.0.15.tar.gz
+      - REDIS_DOWNLOAD_SHA=4bc295264a95bc94423c162a9eee66135a24a51eefe5f53f18fc9bde5c3a9f74
+    image: redis:6.0
+    ports:
+      - 6379:6379/tcp
+    restart: always
+    working_dir: /data
+  Paperless_DB:
+    command:
+      - postgres
+    container_name: Paperless_DB
+    environment:
+      - GOSU_VERSION=1.12
+      - LANG=en_US.utf8
+      - PG_MAJOR=13
+      - PG_VERSION=13.3-1.pgdg100+1
+      - PGDATA=/var/lib/postgresql/data
+      - POSTGRES_DB=paperless
+      - POSTGRES_USER=paperless
+      - POSTGRES_PASSWORD=paperless
+    image: postgres:13
+    ports:
+      - 5433:5432/tcp
+    restart: always
+    volumes:
+      - ./database:/var/lib/postgresql/data:rw
+  Paperless_Gotenberg:
+    command:
+      - gotenberg
+    container_name: Paperless_Gotenberg
+    environment:
+      - GC_EXCLUDE_SUBSTR=hsperfdata_root,hsperfdata_gotenberg
+      - CHROMIUM_BIN_PATH=/usr/bin/chromium
+      - UNOCONV_BIN_PATH=/usr/bin/unoconv
+      - LIBREOFFICE_BIN_PATH=/usr/lib/libreoffice/program/soffice.bin
+      - PDFTK_BIN_PATH=/usr/bin/pdftk
+      - QPDF_BIN_PATH=/usr/bin/qpdf
+      - UNO_URL=https://raw.githubusercontent.com/dagwieers/unoconv/master/unoconv
+      - DISABLE_GOOGLE_CHROME=1
+    image: thecodingmachine/gotenberg:latest
+    ports:
+      - 3000:3000/tcp
+    restart: always
+  Paperless_Tika:
+    container_name: Paperless_Tika
+    entrypoint:
+      - /bin/sh
+      - -c
+      - 'exec java -jar /${TIKA_JAR_NAME}-${TIKA_VERSION}.jar -h 0.0.0.0 $0 $@'
+    environment:
+      - TIKA_VERSION=2.3.0
+      - TIKA_JAR_NAME=tika-server-standard
+    image: apache/tika:latest
+    ports:
+      - 9998:9998/tcp
+    restart: always
+  Paperless_Webserver:
+    container_name: Paperless_Webserver
+    environment:
+      - USERMAP_GID=100
+      - USERMAP_UID=1040
+      - PAPERLESS_DBPORT=5433
+      - PAPERLESS_TIME_ZONE=Europe/Berlin
+      - PAPERLESS_OCR_LANGUAGE=deu
+      - PAPERLESS_SECRET_KEY=GENERIERTESSECRET
+      - PAPERLESS_FILENAME_FORMAT={correspondent}/{created_year}/{correspondent}_{document_type}_{tag_list}_{created}
+      - PAPERLESS_REDIS=redis://IP-DockerHost:6379
+      - PAPERLESS_DBHOST=IP-DockerHost
+      - PAPERLESS_TIKA_ENABLED=1
+      - PAPERLESS_TIKA_GOTENBERG_ENDPOINT=http://IP-DockerHost:3000
+      - PAPERLESS_TIKA_ENDPOINT=http://IP-DockerHost:9998
+    image: jonaswinkler/paperless-ng:latest
+    ports:
+      - 8000:8000/tcp
+    restart: always
+    volumes:
+      - ./consume:rw
+      -./media:rw
+      - ./export:rw
+      - ./data:rw
