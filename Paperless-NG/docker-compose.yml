@@ -86,6 +86,6 @@ services:
     restart: always
     volumes:
       - ./consume:rw
-      -./media:rw
+      - ./media:rw
       - ./export:rw
       - ./data:rw
