@@ -4,8 +4,6 @@ services:
     command:
       - redis-server
     container_name: Paperless_Broker
-    entrypoint:
-      - docker-entrypoint.sh
     environment:
       - GOSU_VERSION=1.14
       - REDIS_VERSION=6.0.15
@@ -15,7 +13,6 @@ services:
     ports:
       - 6379:6379/tcp
     restart: always
-    working_dir: /data
   Paperless_DB:
     command:
       - postgres
