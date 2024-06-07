@@ -18,7 +18,7 @@ APIPLAINPASS=PASSWORD
 XML=./xgxml.txt
 
 # Letsencrypt domain
-# look in /etc/letsencrypt/live
+# look in /root/.acme.sh/
 LEDOMAIN=DOMAIN.de
 
 # Letsencrypt CertificateAuthority
@@ -26,7 +26,7 @@ LEDOMAIN=DOMAIN.de
 LECertAuth=LetsEncrypt-CA
 
 # cert date
-CERTDATE=$(find /root/.acme.sh/${LEDOMAIN}_ecc/${LEDOMAIN}.key -printf "%CY%Cm%Cd\n")
+CERTDATE=$(find /root/.acme.sh/${LEDOMAIN}/${LEDOMAIN}.key -printf "%CY%Cm%Cd\n")
 
 # XG Operation
 #     add: this must be used once to initiate the certificate on the XG
@@ -40,9 +40,9 @@ OPERATION=${1:-add}
 #    - listing the 3 files to be uploaded in the order they occur in the input
 # 4. Delete the copy of privkey.pem that was created
 
-cp /root/.acme.sh/${LEDOMAIN}_ecc/${LEDOMAIN}.key ./privkey.key
-cp /root/.acme.sh/${LEDOMAIN}_ecc/ca.cer ./chain.pem
-cp /root/.acme.sh/${LEDOMAIN}_ecc/fullchain.cer ./fullchain.pem
+cp /root/.acme.sh/${LEDOMAIN}/${LEDOMAIN}.key ./privkey.key
+cp /root/.acme.sh/${LEDOMAIN}/ca.cer ./chain.pem
+cp /root/.acme.sh/${LEDOMAIN}/fullchain.cer ./fullchain.pem
 
 
 sed \
@@ -50,7 +50,7 @@ sed \
   -e "s/APIPLAINPASS/$APIPLAINPASS/" \
   -e "s/OPERATION/$OPERATION/" \
   -e "s/LEDOMAIN/$LEDOMAIN-$CERTDATE/" \
-  -e "s/LECertAuth/$LECertAuth-$CERTDATE/" /root/.le/xgxml.txt \
+  -e "s/LECertAuth/$LECertAuth-$CERTDATE/" /root/le2xg/xgxml.txt \
 | curl -k -F "reqxml=<-" \
   -F file=@./chain.pem \
   -F file=@./fullchain.pem \
